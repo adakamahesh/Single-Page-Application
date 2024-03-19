@@ -1,8 +1,15 @@
+import Dashboard from "./views/Dashboard.js";
+
+const navigateTo=url=>{
+    history.pushState(null,null,url);
+    router();
+};
+
 const router= async()=>{
     const router=[
-        {path:"/",viwe:()=>console.log("viewing Dashboard")},
-        {path:"/posts",viwe:()=>console.log("viewing posts")},
-        {path:"/settings",viwe:()=>console.log("viewing settings")}
+        {path:"/",view: Dashboard },
+        // {path:"/posts",viwe:()=>console.log("viewing posts")},
+        // {path:"/settings",viwe:()=>console.log("viewing settings")}
     ];
     //test each route for potential match
     const potentialMatches=router.map(route=>{
@@ -14,8 +21,27 @@ const router= async()=>{
 
     let match=potentialMatches.find(potentialMatch=>potentialMatch.isMatch)
 
-    console.log(potentialMatches);
+    if(!match){
+        match={
+            route:router[0],
+            isMatch:true
+        };
+    };
+
+    const view=new match.route.view();
+
+    document.querySelector("#app").innerHTML=await view.getHtml();
+
 };
+
+window.addEventListener("popstate",router);
 document.addEventListener("DOMContentLoaded",()=>{
+    document.body.addEventListener('click',e =>{
+        if(e.target.matches("[data-link]")){
+            e.preventDefault();
+            navigateTo(e.target.href);
+        }
+    })
+
     router();
 });
